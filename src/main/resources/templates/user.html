@@ -1,0 +1,24 @@
+{@de.fhdo.swt.example.model.User user}
+<!DOCTYPE HTML>
+
+<html>
+<head>
+    <title>User Registration</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+</head>
+<p>
+<h1>Form</h1>
+<form action="/user" method="post">
+    <label for="name">Name:</label>
+    <input type="text" id="name" name="name"/>
+    <label for="email">Email:</label>
+    <input type="text" id="email" name="email"/>
+    <p><input type="submit" value="Submit"/> <input type="reset" value="Reset"/></p>
+</form>
+
+<h1>Users:</h1>
+<p>name: {user.name}</p>
+<p>email: {user.email}</p>
+
+</body>
+</html>

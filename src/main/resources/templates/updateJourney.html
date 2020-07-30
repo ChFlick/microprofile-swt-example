@@ -1,0 +1,26 @@
+{@de.fhdo.swt.example.entity.Journey journey}
+{@djava.util.Map<java.lang.String, java.lang.String> errors}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Update a Journey</title>
+</head>
+<body>
+<form action="/journey/update/{journey.id}" method="post">
+    <label for="origin">Origin</label>
+    <input id="origin" placeholder="Origin" name="origin" type="text" value="{journey.origin}">
+    {#if errors.containsKey("origin") }
+        <span>{errors.get("origin")}</span>
+    {/if}
+    <br>
+    <label for="destination">Destination</label>
+    <input id="destination" placeholder="Destination" name="destination" type="text" value="{journey.destination}">
+    {#if errors.containsKey("destination") }
+        <span>{errors.get("destination")}</span>
+    {/if}
+    <br>    <input type="submit" value="Update Journey">
+</form>
+</body>
+</html>

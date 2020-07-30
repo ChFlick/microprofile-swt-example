@@ -1,0 +1,40 @@
+{@java.util.Collection<de.fhdo.swt.example.entity.Journey> journeys}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Journeys</title>
+</head>
+<body>
+<div>
+    {#if !journeys}
+    <h2>No journeys yet!</h2>
+    {#else}
+    <div>
+        <h2>Journeys</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>Origin</th>
+                <th>Destination</th>
+                <th>Edit</th>
+                <th>Delete</th>
+            </tr>
+            </thead>
+            <tbody>
+            {#each journeys}
+            <tr>
+                <td>{it.origin}</td>
+                <td>{it.destination}</td>
+                <td><a href="/journey/edit/{it.id}">Edit</a></td>
+                <td><a href="/journey/delete/{it.id}">Delete</a></td>
+            </tr>
+            {/each}
+            </tbody>
+        </table>
+    </div>
+    {/if}
+    <p><a href="/journey/add">Add a new journey</a></p>
+</div>
+</body>
+</html>

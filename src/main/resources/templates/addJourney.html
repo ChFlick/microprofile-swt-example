@@ -1,0 +1,25 @@
+{@djava.util.Map<java.lang.String, java.lang.String> errors}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<form method="post" action="/journey/add">
+    <label for="origin">Origin</label>
+    <input id="origin" placeholder="Origin" name="origin" type="text">
+    {#if errors.containsKey("origin") }
+        <span>{errors.get("origin")}</span>
+    {/if}
+    <br>
+    <label for="destination">Destination</label>
+    <input id="destination" placeholder="Destination" name="destination" type="text">
+    {#if errors.containsKey("destination") }
+        <span>{errors.get("destination")}</span>
+    {/if}
+    <br>
+    <input type="submit" value="Add Journey">
+</form>
+</body>
+</html>
