@@ -26,28 +26,22 @@ import static java.util.stream.Collectors.toMap;
 @Path("/journey")
 @Produces(MediaType.TEXT_HTML)
 public class JourneyController {
-
-    private final JourneyRepository journeyRepository;
-    private final Template journey;
-    private final Template addJourney;
-    private final Template updateJourney;
-    private final Validator validator;
+    @Inject
+    JourneyRepository journeyRepository;
 
     @Inject
-    public JourneyController(JourneyRepository journeyRepository,
-                             Template journey,
-                             Template addJourney,
-                             Template updateJourney,
-                             Validator validator) {
-        this.journeyRepository = journeyRepository;
-        this.journey = journey;
-        this.addJourney = addJourney;
-        this.updateJourney = updateJourney;
-        this.validator = validator;
-    }
+    Template journey;
+
+    @Inject
+    Template addJourney;
+
+    @Inject
+    Template updateJourney;
+
+    @Inject
+    Validator validator;
 
     @GET
-    @Produces(MediaType.TEXT_HTML)
     public TemplateInstance showJourneyForm() {
         return this.journey.data("journeys", journeyRepository.listAll());
     }
@@ -98,7 +92,7 @@ public class JourneyController {
         }
 
         Journey journeyToUpdate = journeyRepository.findByIdOptional(id)
-                                                  .orElseThrow(() -> new JourneyNotFoundException("Invalid journey Id:" + id));
+                                                   .orElseThrow(() -> new JourneyNotFoundException("Invalid journey Id:" + id));
 
         journeyToUpdate.setDestination(journeyUpdates.getDestination());
         journeyToUpdate.setOrigin(journeyUpdates.getOrigin());
