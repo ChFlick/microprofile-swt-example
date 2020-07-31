@@ -6,6 +6,7 @@ import de.fhdo.swt.example.repository.JourneyRepository;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.jboss.resteasy.plugins.server.servlet.HttpServletResponseWrapper;
 
+import javax.transaction.Transactional;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -16,15 +17,13 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import java.util.List;
 
 @Path("/api")
 @Produces(MediaType.APPLICATION_JSON)
 public class ApiController {
-    @Context
-    private HttpServletResponseWrapper response;
-
     private final JourneyRepository journeyRepository;
 
     public ApiController(JourneyRepository journeyRepository) {
@@ -46,19 +45,21 @@ public class ApiController {
     @POST
     @Path("/journey")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Journey createJourney(@RequestBody Journey journey) {
+    @Transactional
+    public Response createJourney(@RequestBody Journey journey) {
         journeyRepository.persist(journey);
 
-        int statusCode = journeyRepository.isPersistent(journey) ?
-            Status.CREATED.getStatusCode() : Status.NOT_MODIFIED.getStatusCode();
-        response.setStatus(statusCode);
+        if(!journeyRepository.isPersistent(journey)){
+            return Response.notModified().build();
+        }
 
-        return journey;
+        return Response.ok(journey).status(Status.CREATED).build();
     }
 
     @PUT
     @Path("/journey/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
+    @Transactional
     public Journey updateJourney(@RequestBody Journey journey, @PathParam("id") Long id) {
         Journey updateJourney = journeyRepository.findByIdOptional(id)
                                                  .orElseThrow(JourneyNotFoundException::new);
@@ -69,6 +70,7 @@ public class ApiController {
 
     @DELETE
     @Path("/journey/{id}")
+    @Transactional
     public void deleteJourney(@PathParam("id") Long id) {
         journeyRepository.deleteById(id);
     }

@@ -1,6 +1,8 @@
 package de.fhdo.swt.example.exception;
 
-public class JourneyNotFoundException extends RuntimeException {
+import javax.ws.rs.NotFoundException;
+
+public class JourneyNotFoundException extends NotFoundException {
     public JourneyNotFoundException() {
         super();
     }
