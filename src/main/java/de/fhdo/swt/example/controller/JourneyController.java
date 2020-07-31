@@ -5,9 +5,9 @@ import de.fhdo.swt.example.exception.JourneyNotFoundException;
 import de.fhdo.swt.example.repository.JourneyRepository;
 import io.quarkus.qute.Template;
 import io.quarkus.qute.TemplateInstance;
+import io.quarkus.qute.api.ResourcePath;
 import org.jboss.resteasy.annotations.Form;
 
-import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
@@ -26,30 +26,33 @@ import static java.util.stream.Collectors.toMap;
 @Path("/journey")
 @Produces(MediaType.TEXT_HTML)
 public class JourneyController {
-    @Inject
-    JourneyRepository journeyRepository;
+    private final JourneyRepository journeyRepository;
+    private final Template journeyTemplate;
+    private final Template addJourneyTemplate;
+    private final Template updateJourneyTemplate;
+    private final Validator validator;
 
-    @Inject
-    Template journey;
-
-    @Inject
-    Template addJourney;
-
-    @Inject
-    Template updateJourney;
-
-    @Inject
-    Validator validator;
+    public JourneyController(JourneyRepository journeyRepository,
+                             @ResourcePath("journey.html") Template journeyTemplate,
+                             @ResourcePath("addJourney.html") Template addJourneyTemplate,
+                             @ResourcePath("updateJourney.html") Template updateJourneyTemplate,
+                             Validator validator) {
+        this.journeyRepository = journeyRepository;
+        this.journeyTemplate = journeyTemplate;
+        this.addJourneyTemplate = addJourneyTemplate;
+        this.updateJourneyTemplate = updateJourneyTemplate;
+        this.validator = validator;
+    }
 
     @GET
     public TemplateInstance showJourneyForm() {
-        return this.journey.data("journeys", journeyRepository.listAll());
+        return journeyTemplate.data("journeys", journeyRepository.listAll());
     }
 
     @GET
     @Path("/add")
     public TemplateInstance showAddJourneyForm() {
-        return this.addJourney.instance();
+        return addJourneyTemplate.instance();
     }
 
     @POST
@@ -62,11 +65,11 @@ public class JourneyController {
             Map<String, String> errors = violations.stream()
                                                    .collect(toMap(v -> v.getPropertyPath().toString(),
                                                        ConstraintViolation::getMessage));
-            return addJourney.data("errors", errors);
+            return addJourneyTemplate.data("errors", errors);
         }
 
         journeyRepository.persist(journey);
-        return this.journey.data("journeys", journeyRepository.listAll());
+        return this.journeyTemplate.data("journeys", journeyRepository.listAll());
     }
 
     @GET
@@ -75,7 +78,7 @@ public class JourneyController {
         Journey journey = journeyRepository.findByIdOptional(id)
                                            .orElseThrow(() -> new JourneyNotFoundException("Invalid journey Id:" + id));
 
-        return updateJourney.data("journey", journey);
+        return updateJourneyTemplate.data("journey", journey);
     }
 
     @POST
@@ -88,7 +91,7 @@ public class JourneyController {
             Map<String, String> errors = violations.stream()
                                                    .collect(toMap(v -> v.getPropertyPath().toString(), ConstraintViolation::getMessage));
             journeyUpdates.setId(id);
-            return updateJourney.data("errors", errors).data("journey", journeyUpdates);
+            return updateJourneyTemplate.data("errors", errors).data("journey", journeyUpdates);
         }
 
         Journey journeyToUpdate = journeyRepository.findByIdOptional(id)
@@ -96,7 +99,7 @@ public class JourneyController {
 
         journeyToUpdate.setDestination(journeyUpdates.getDestination());
         journeyToUpdate.setOrigin(journeyUpdates.getOrigin());
-        return journey.data("journeys", journeyRepository.listAll());
+        return journeyTemplate.data("journeys", journeyRepository.listAll());
     }
 
     @GET
@@ -106,7 +109,7 @@ public class JourneyController {
         Journey journey = journeyRepository.findByIdOptional(id)
                                            .orElseThrow(() -> new JourneyNotFoundException("Invalid journey Id:" + id));
         journeyRepository.delete(journey);
-        return this.journey.data("journeys", journeyRepository.listAll());
+        return journeyTemplate.data("journeys", journeyRepository.listAll());
     }
 }
 
