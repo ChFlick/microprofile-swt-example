@@ -1,0 +1,35 @@
+<html>
+<body>
+{!#if message!}
+<div>
+    <h2>{!message!}</h2>
+</div>
+{!/if!}
+
+<div>
+    <form method="POST" enctype="multipart/form-data" action="/upload">
+        <table>
+            <tr>
+                <td>File to upload:</td>
+                <td><input type="file" name="file"/></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td><input type="submit" value="Upload"/></td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<div>
+    <ul>
+        {#for file in files}
+        <li>
+            <a href="upload/{file}">{file}</a>
+        </li>
+        {/for}
+    </ul>
+</div>
+
+</body>
+</html>
