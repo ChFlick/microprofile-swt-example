@@ -4,7 +4,9 @@ import io.quarkus.test.junit.QuarkusTest;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpStatus;
-import org.junit.jupiter.api.AfterAll;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -19,15 +21,16 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @QuarkusTest
 class FilesControllerTest {
+    @ConfigProperty(name = "files.storage.dir")
+    String filesDir;
+
+    private File storageDirectory;
+    private static final File TEST_FILE = new File("./src/test/resources/testfile.txt");
 
     @BeforeEach
+    @AfterEach
     public void removeFiles() throws IOException {
-        cleanUp();
-    }
-
-    @AfterAll
-    static void cleanUp() throws IOException {
-        final File storageDirectory = new File("./storage/");
+        this.storageDirectory = new File(filesDir);
         FileUtils.deleteDirectory(storageDirectory);
         storageDirectory.mkdir();
     }
@@ -45,7 +48,7 @@ class FilesControllerTest {
     @Test
     void upload_uploadsFiles() {
         given()
-            .multiPart("file", new File("./src/test/resources/testfile.txt"), "text/plain")
+            .multiPart("file", TEST_FILE, "text/plain")
         .when()
             .post("/files")
         .then()
@@ -56,9 +59,7 @@ class FilesControllerTest {
 
     @Test
     void download_downloads_uploadedFiles() throws IOException {
-        final File testFile = new File("./src/test/resources/testfile.txt");
-        final File storageDirectory = new File("./storage/");
-        FileUtils.copyFileToDirectory(testFile, storageDirectory);
+        FileUtils.copyFileToDirectory(TEST_FILE, storageDirectory);
 
         InputStream downloadedFile = given()
         .when()
@@ -68,6 +69,6 @@ class FilesControllerTest {
             .statusCode(HttpStatus.SC_OK)
             .extract().asInputStream();
 
-        assertTrue(IOUtils.contentEquals(downloadedFile, FileUtils.openInputStream(testFile)));
+        assertTrue(IOUtils.contentEquals(downloadedFile, FileUtils.openInputStream(TEST_FILE)));
     }
 }

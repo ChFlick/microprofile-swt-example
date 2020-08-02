@@ -6,6 +6,7 @@ import io.quarkus.qute.api.ResourcePath;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FalseFileFilter;
 import org.apache.commons.io.filefilter.TrueFileFilter;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.resteasy.plugins.providers.multipart.InputPart;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
 
@@ -30,11 +31,13 @@ import static java.util.stream.Collectors.toList;
 
 @Path("/files")
 public class FilesController {
-    private final File storageDirectory = new File("./storage/");
+    private final File storageDirectory;
     private final Template uploadTemplate;
 
-    public FilesController(@ResourcePath("files.html") final Template uploadTemplate) {
+    public FilesController(@ResourcePath("files.html") final Template uploadTemplate,
+                           @ConfigProperty(name = "files.storage.dir") final String filesDir) {
         this.uploadTemplate = uploadTemplate;
+        this.storageDirectory = new File(filesDir);
         this.storageDirectory.mkdir();
     }
 
