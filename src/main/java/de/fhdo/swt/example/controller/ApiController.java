@@ -3,7 +3,14 @@ package de.fhdo.swt.example.controller;
 import de.fhdo.swt.example.entity.Journey;
 import de.fhdo.swt.example.exception.JourneyNotFoundException;
 import de.fhdo.swt.example.repository.JourneyRepository;
+import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
+import org.eclipse.microprofile.openapi.annotations.media.Content;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
+import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 
 import javax.transaction.Transactional;
 import javax.ws.rs.Consumes;
@@ -21,6 +28,7 @@ import java.util.List;
 
 @Path("/api")
 @Produces(MediaType.APPLICATION_JSON)
+
 public class ApiController {
     private final JourneyRepository journeyRepository;
 
@@ -30,7 +38,35 @@ public class ApiController {
 
     @GET
     @Path("/journey/{id}")
-    public Journey getJourneyById(@PathParam("id") Long id) {
+    @APIResponses(
+        value = {
+            @APIResponse(
+                responseCode = "200",
+                description = "Successfully retrieved the journey",
+                content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = Journey.class)
+                )
+            ),
+            @APIResponse(
+                responseCode = "404",
+                description = "The journey was not found",
+                content = @Content(mediaType = MediaType.TEXT_PLAIN)
+            )
+        }
+    )
+    @Operation(
+        summary = "Fetch a specific journey",
+        description = "Retrieves a specific journey by its id from the database."
+    )
+    public Journey getJourneyById(
+        @Parameter(
+            description = "The id of the journey to look up.",
+            required = true,
+            example = "1",
+            schema = @Schema(type = SchemaType.INTEGER)
+        )
+        @PathParam("id") Long id) {
         return journeyRepository.findByIdOptional(id).orElseThrow(JourneyNotFoundException::new);
     }
 
