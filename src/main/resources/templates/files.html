@@ -22,6 +22,7 @@
 </div>
 
 <div>
+    {#if files}
     <ul>
         {#for file in files}
         <li>
@@ -29,6 +30,9 @@
         </li>
         {/for}
     </ul>
+    {#else}
+    No Files uploaded yet.
+    {/if}
 </div>
 
 </body>
