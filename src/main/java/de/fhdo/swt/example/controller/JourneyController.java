@@ -2,12 +2,14 @@ package de.fhdo.swt.example.controller;
 
 import de.fhdo.swt.example.entity.Journey;
 import de.fhdo.swt.example.exception.JourneyNotFoundException;
+import de.fhdo.swt.example.repository.JourneyDAO;
 import de.fhdo.swt.example.repository.JourneyRepository;
 import io.quarkus.qute.Template;
 import io.quarkus.qute.TemplateInstance;
 import io.quarkus.qute.api.ResourcePath;
 import org.jboss.resteasy.annotations.Form;
 
+import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
@@ -44,9 +46,13 @@ public class JourneyController {
         this.validator = validator;
     }
 
+    @Inject
+    JourneyDAO journeyDAO;
+
     @GET
     public TemplateInstance showJourneyForm() {
-        return journeyTemplate.data("journeys", journeyRepository.listAll());
+        return journeyTemplate.data("journeys", journeyDAO.findAll());
+//        return journeyTemplate.data("journeys", journeyRepository.listAll());
     }
 
     @GET
@@ -68,15 +74,17 @@ public class JourneyController {
             return addJourneyTemplate.data("errors", errors);
         }
 
-        journeyRepository.persist(journey);
-        return this.journeyTemplate.data("journeys", journeyRepository.listAll());
+        journeyDAO.save(journey);
+//        journeyRepository.persist(journey);
+        return journeyTemplate.data("journeys", journeyRepository.listAll());
     }
 
     @GET
     @Path("/edit/{id}")
     public TemplateInstance showJourneyUpdateForm(@PathParam("id") long id) {
-        Journey journey = journeyRepository.findByIdOptional(id)
-                                           .orElseThrow(() -> new JourneyNotFoundException("Invalid journey Id:" + id));
+//        Journey journey = journeyRepository.findByIdOptional(id)
+        Journey journey = journeyDAO.findById(id)
+                                    .orElseThrow(() -> new JourneyNotFoundException("Invalid journey Id:" + id));
 
         return updateJourneyTemplate.data("journey", journey);
     }
@@ -94,22 +102,27 @@ public class JourneyController {
             return updateJourneyTemplate.data("errors", errors).data("journey", journeyUpdates);
         }
 
-        Journey journeyToUpdate = journeyRepository.findByIdOptional(id)
-                                                   .orElseThrow(() -> new JourneyNotFoundException("Invalid journey Id:" + id));
+        journeyDAO.update(journeyUpdates);
+        return journeyTemplate.data("journeys", journeyDAO.findAll());
 
-        journeyToUpdate.setDestination(journeyUpdates.getDestination());
-        journeyToUpdate.setOrigin(journeyUpdates.getOrigin());
-        return journeyTemplate.data("journeys", journeyRepository.listAll());
+//        Journey journeyToUpdate = journeyRepository.findByIdOptional(id)
+//                                                   .orElseThrow(() -> new JourneyNotFoundException("Invalid journey Id:" + id));
+//
+//        journeyToUpdate.setDestination(journeyUpdates.getDestination());
+//        journeyToUpdate.setOrigin(journeyUpdates.getMessageOrigin());
+//        return journeyTemplate.data("journeys", journeyRepository.listAll());
     }
 
     @GET
     @Path("/delete/{id}")
     @Transactional
     public TemplateInstance deleteJourney(@PathParam("id") long id) {
-        Journey journey = journeyRepository.findByIdOptional(id)
-                                           .orElseThrow(() -> new JourneyNotFoundException("Invalid journey Id:" + id));
-        journeyRepository.delete(journey);
-        return journeyTemplate.data("journeys", journeyRepository.listAll());
+        journeyDAO.deleteById(id);
+        return journeyTemplate.data("journeys", journeyDAO.findAll());
+//        Journey journey = journeyRepository.findByIdOptional(id)
+//                                           .orElseThrow(() -> new JourneyNotFoundException("Invalid journey Id:" + id));
+//        journeyRepository.delete(journey);
+//        return journeyTemplate.data("journeys", journeyRepository.listAll());
     }
 }
 
