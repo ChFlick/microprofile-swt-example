@@ -22,12 +22,13 @@ public class JourneyDAO {
     public Optional<Journey> findById(long id) {
         return Optional.ofNullable(this.entityManager.find(Journey.class, id));
     }
+
     public void save(Journey journey) {
         this.entityManager.persist(journey);
     }
 
     public void deleteById(long id) {
-        this.findById(id).ifPresent(j -> this.entityManager.remove(j));
+        this.findById(id).ifPresent(this.entityManager::remove);
     }
 
     public void update(Journey journey) {

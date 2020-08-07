@@ -9,7 +9,6 @@ import io.quarkus.qute.TemplateInstance;
 import io.quarkus.qute.api.ResourcePath;
 import org.jboss.resteasy.annotations.Form;
 
-import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
@@ -33,21 +32,21 @@ public class JourneyController {
     private final Template addJourneyTemplate;
     private final Template updateJourneyTemplate;
     private final Validator validator;
+    private final JourneyDAO journeyDAO;
 
     public JourneyController(JourneyRepository journeyRepository,
+                             JourneyDAO journeyDAO,
                              @ResourcePath("journey.html") Template journeyTemplate,
                              @ResourcePath("addJourney.html") Template addJourneyTemplate,
                              @ResourcePath("updateJourney.html") Template updateJourneyTemplate,
                              Validator validator) {
         this.journeyRepository = journeyRepository;
+        this.journeyDAO = journeyDAO;
         this.journeyTemplate = journeyTemplate;
         this.addJourneyTemplate = addJourneyTemplate;
         this.updateJourneyTemplate = updateJourneyTemplate;
         this.validator = validator;
     }
-
-    @Inject
-    JourneyDAO journeyDAO;
 
     @GET
     public TemplateInstance showJourneyForm() {
@@ -75,8 +74,9 @@ public class JourneyController {
         }
 
         journeyDAO.save(journey);
+        return journeyTemplate.data("journeys", journeyDAO.findAll());
 //        journeyRepository.persist(journey);
-        return journeyTemplate.data("journeys", journeyRepository.listAll());
+//        return journeyTemplate.data("journeys", journeyRepository.listAll());
     }
 
     @GET
