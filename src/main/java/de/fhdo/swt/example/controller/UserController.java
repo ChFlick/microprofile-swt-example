@@ -17,17 +17,51 @@ import javax.ws.rs.core.MediaType;
 @Produces(MediaType.TEXT_HTML)
 public class UserController {
 
-    @Inject
-    Template user;
-
     @GET
-    public TemplateInstance userForm() {
-        return user.data("user", new User());
+    public String userForm() {
+        return "<!DOCTYPE HTML>\n" +
+            "\n" +
+            "<html>\n" +
+            "<head>\n" +
+            "    <title>User Registration</title>\n" +
+            "    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n" +
+            "</head>\n" +
+            "<p>\n" +
+            "<h1>Form</h1>\n" +
+            "<form action=\"/user\" method=\"post\">\n" +
+            "    <label for=\"name\">Name:</label>\n" +
+            "    <input type=\"text\" id=\"name\" name=\"name\"/>\n" +
+            "    <label for=\"email\">Email:</label>\n" +
+            "    <input type=\"text\" id=\"email\" name=\"email\"/>\n" +
+            "    <p><input type=\"submit\" value=\"Submit\"/> <input type=\"reset\" value=\"Reset\"/></p>\n" +
+            "</form>\n" +
+            "</body>\n" +
+            "</html>";
     }
 
     @POST
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    public TemplateInstance createUser(@Form User user) {
-        return this.user.data("user", user);
+    public String createUser(@Form User user) {
+        return "<html>\n" +
+            "<head>\n" +
+            "    <title>User Registration</title>\n" +
+            "    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n" +
+            "</head>\n" +
+            "<p>\n" +
+            "<h1>Form</h1>\n" +
+            "<form action=\"/user\" method=\"post\">\n" +
+            "    <label for=\"name\">Name:</label>\n" +
+            "    <input type=\"text\" id=\"name\" name=\"name\"/>\n" +
+            "    <label for=\"email\">Email:</label>\n" +
+            "    <input type=\"text\" id=\"email\" name=\"email\"/>\n" +
+            "    <p><input type=\"submit\" value=\"Submit\"/> <input type=\"reset\" value=\"Reset\"/></p>\n" +
+            "</form>\n" +
+            "\n" +
+            "<h1>Users:</h1>\n" +
+            "<p>name: " + user.getName() + "</p>\n" +
+            "<p>email: " + user.getEmail() + "</p>\n" +
+            "\n" +
+            "</body>\n" +
+            "</html>";
     }
 }
