@@ -28,6 +28,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
+import static javax.ws.rs.core.HttpHeaders.CONTENT_DISPOSITION;
+import static javax.ws.rs.core.Response.Status.*;
 
 @Path("/files")
 public class FilesController {
@@ -76,13 +78,18 @@ public class FilesController {
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     public Response download(@PathParam("name") String filename) {
         File fileDownload = new File(storageDirectory + File.separator + filename);
+
+        if (!fileDownload.exists()) {
+            return Response.status(NOT_FOUND).build();
+        }
+
         return Response.ok(fileDownload)
-                       .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + filename)
+                       .header(CONTENT_DISPOSITION, "attachment;filename=" + filename)
                        .build();
     }
 
     private String getFileName(MultivaluedMap<String, String> header) throws FileSystemException {
-        String[] contentDisposition = header.getFirst(HttpHeaders.CONTENT_DISPOSITION).split(";");
+        String[] contentDisposition = header.getFirst(CONTENT_DISPOSITION).split(";");
 
         return Arrays.stream(contentDisposition)
                      .filter(name -> name.trim().startsWith("filename"))
